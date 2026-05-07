@@ -52,18 +52,14 @@ function startFishAnimation() {
     if (allGone) {
       canvas.remove();
       fishCanvas = null;
-      cancelAnimationFrame(animId);
     } else {
       animId = requestAnimationFrame(draw);
     }
   }
 
-  img.onload = () => {
-    animId = requestAnimationFrame(draw);
-  };
-
-  // SVGがキャッシュ済みの場合 onload が発火しないケースへの対応
   if (img.complete) {
     animId = requestAnimationFrame(draw);
+  } else {
+    img.onload = () => { animId = requestAnimationFrame(draw); };
   }
 }

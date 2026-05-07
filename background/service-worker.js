@@ -16,10 +16,11 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   }
 });
 
-// popup から手動テスト用
-chrome.runtime.onMessage.addListener((msg) => {
+// popup から手動テスト用（return true でWorkerを非同期処理完了まで維持）
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.action === 'testFish') {
-    sendFishToActiveTab();
+    sendFishToActiveTab().then(() => sendResponse({}));
+    return true;
   }
 });
 
@@ -71,8 +72,8 @@ async function pollCalendar() {
   const existingNames = new Set(existing.map((a) => a.name));
 
   for (const event of events) {
-    const startStr = event.start.dateTime ?? event.start.date;
-    if (!startStr) continue;
+    if (!event.start.dateTime) continue; // 全日イベントはスキップ
+    const startStr = event.start.dateTime;
 
     const start = new Date(startStr);
     const fishTime = new Date(start.getTime() - 5 * 60 * 1000);
