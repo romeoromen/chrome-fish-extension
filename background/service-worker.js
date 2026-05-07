@@ -1,0 +1,94 @@
+const CALENDAR_API = 'https://www.googleapis.com/calendar/v3';
+const POLL_ALARM = 'poll';
+const FISH_PREFIX = 'fish-';
+
+// 拡張インストール時にポーリングアラームをセット
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.alarms.create(POLL_ALARM, { periodInMinutes: 1 });
+  pollCalendar();
+});
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === POLL_ALARM) {
+    await pollCalendar();
+  } else if (alarm.name.startsWith(FISH_PREFIX)) {
+    await sendFishToActiveTab();
+  }
+});
+
+// popup から手動テスト用
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.action === 'testFish') {
+    sendFishToActiveTab();
+  }
+});
+
+async function getToken() {
+  return new Promise((resolve, reject) => {
+    chrome.identity.getAuthToken({ interactive: false }, (token) => {
+      if (chrome.runtime.lastError || !token) {
+        reject(new Error(chrome.runtime.lastError?.message ?? 'no token'));
+      } else {
+        resolve(token);
+      }
+    });
+  });
+}
+
+async function pollCalendar() {
+  let token;
+  try {
+    token = await getToken();
+  } catch {
+    return; // 未ログイン。次のポーリングまで待つ
+  }
+
+  const now = new Date();
+  const end = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const params = new URLSearchParams({
+    timeMin: now.toISOString(),
+    timeMax: end.toISOString(),
+    singleEvents: 'true',
+    orderBy: 'startTime',
+  });
+
+  let res;
+  try {
+    res = await fetch(`${CALENDAR_API}/calendars/primary/events?${params}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch {
+    return; // ネットワークエラー。次のポーリングまで待つ
+  }
+
+  if (!res.ok) return;
+
+  const data = await res.json();
+  const events = data.items ?? [];
+
+  // 既存アラーム名を取得して重複セットを防ぐ
+  const existing = await chrome.alarms.getAll();
+  const existingNames = new Set(existing.map((a) => a.name));
+
+  for (const event of events) {
+    const startStr = event.start.dateTime ?? event.start.date;
+    if (!startStr) continue;
+
+    const start = new Date(startStr);
+    const fishTime = new Date(start.getTime() - 5 * 60 * 1000);
+    const alarmName = `${FISH_PREFIX}${event.id}`;
+
+    if (fishTime > now && !existingNames.has(alarmName)) {
+      chrome.alarms.create(alarmName, { when: fishTime.getTime() });
+    }
+  }
+}
+
+async function sendFishToActiveTab() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) return;
+
+  chrome.tabs.sendMessage(tab.id, { action: 'showFish' }).catch(() => {
+    // content script が未注入のタブ（chrome:// など）は無視
+  });
+}
