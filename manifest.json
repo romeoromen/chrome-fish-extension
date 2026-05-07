@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Fish Calendar",
+  "version": "1.0.0",
+  "description": "Googleカレンダーの予定5分前に魚群が泳ぐ",
+  "permissions": ["identity", "alarms", "tabs", "activeTab", "storage"],
+  "host_permissions": [
+    "https://www.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/fish.js"],
+      "css": ["content/fish.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Fish Calendar"
+  },
+  "oauth2": {
+    "client_id": "REPLACE_WITH_YOUR_CLIENT_ID.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/calendar.readonly"]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/fish.svg"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
