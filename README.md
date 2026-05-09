@@ -1,11 +1,12 @@
 # Fish Calendar 🐟
 
-Google カレンダーの予定開始 5 分前に、ブラウザ画面を魚群が横切る Chrome 拡張。
+Google カレンダーの予定開始前に、ブラウザ画面を魚群が横切る Chrome 拡張。
 
 ## 機能
 
 - Google カレンダーの予定を自動取得
-- 予定開始 5 分前にアクティブなタブを魚群がアニメーションで横切る
+- 予定開始の何分前に通知するか設定可能（1〜60分、デフォルト5分）
+- アクティブなタブを魚群アニメーションが横切る
 - ポップアップから「テスト魚を流す」で即時確認可能
 
 ## インストール（開発者向け）
@@ -34,14 +35,19 @@ Google カレンダーの予定開始 5 分前に、ブラウザ画面を魚群�
 
 ## 使い方
 
-1. ツールバーの 🐟 アイコンをクリック
+1. ツールバーのアイコンをクリック
 2. 「Google でログイン」で認証
-3. Google カレンダーに予定を入れると、開始 5 分前に自動で魚群が流れる
+3. ポップアップの入力欄で通知タイミングを設定（例：3分前）
+4. Google カレンダーに予定を入れると、設定した時間前に自動で魚群が流れる
 
 ## Chrome Web Store への公開
 
 1. Google Cloud Console の「OAuth 同意画面」→「アプリを公開」
 2. Chrome Web Store [デベロッパーダッシュボード](https://chrome.google.com/webstore/devconsole) で拡張をアップロード（登録料 $5 / 一回のみ）
+
+## プライバシーポリシー
+
+[プライバシーポリシー](https://romeoromen.github.io/chrome-fish-extension/privacy-policy.html)
 
 ## ファイル構成
 
@@ -55,7 +61,12 @@ chrome-fish-extension/
 │   └── fish.css
 ├── popup/
 │   ├── popup.html
-│   └── popup.js            # ログイン・次の予定表示
-└── assets/
-    └── fish.svg
+│   └── popup.js            # ログイン・次の予定表示・タイミング設定
+├── assets/
+│   ├── fish.png            # 魚の画像
+│   ├── icon16.png
+│   ├── icon48.png
+│   └── icon128.png
+└── docs/
+    └── privacy-policy.html
 ```
