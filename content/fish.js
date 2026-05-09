@@ -16,14 +16,14 @@ function startFishAnimation() {
 
   const ctx = canvas.getContext('2d');
   const img = new Image();
-  img.src = chrome.runtime.getURL('assets/fish.svg');
+  img.src = chrome.runtime.getURL('assets/fish.png');
 
   const count = Math.floor(Math.random() * 11) + 15; // 15〜25匹
   const fishes = Array.from({ length: count }, () => ({
     x: canvas.width + Math.random() * 400,
     y: Math.random() * (canvas.height - 80) + 40,
     speed: Math.random() * 3 + 2,   // 2〜5 px/frame
-    size: Math.random() * 30 + 30,  // 30〜60 px
+    size: Math.random() * 40 + 60,  // 60〜100 px
     angle: Math.random() * Math.PI * 2,
     angleSpeed: (Math.random() - 0.5) * 0.06,
   }));
@@ -43,8 +43,8 @@ function startFishAnimation() {
         allGone = false;
         ctx.save();
         ctx.translate(f.x + f.size / 2, f.y + f.size / 2);
-        ctx.scale(-1, 1); // 左向きに反転
-        ctx.drawImage(img, -f.size / 2, -f.size / 2, f.size, f.size * 0.6);
+        ctx.scale(1, 1);
+        ctx.drawImage(img, -f.size / 2, -f.size / 2, f.size, f.size);
         ctx.restore();
       }
     }
