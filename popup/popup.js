@@ -1,4 +1,16 @@
 const statusEl = document.getElementById('status');
+const minutesInput = document.getElementById('minutesBefore');
+
+// 保存済みの設定を読み込む
+chrome.storage.local.get('minutesBefore', (data) => {
+  if (data.minutesBefore) minutesInput.value = data.minutesBefore;
+});
+
+minutesInput.addEventListener('change', () => {
+  const val = Math.min(60, Math.max(1, parseInt(minutesInput.value, 10) || 5));
+  minutesInput.value = val;
+  chrome.storage.local.set({ minutesBefore: val });
+});
 
 document.getElementById('loginBtn').addEventListener('click', () => {
   chrome.identity.getAuthToken({ interactive: true }, (token) => {

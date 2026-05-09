@@ -76,7 +76,8 @@ async function pollCalendar() {
     const startStr = event.start.dateTime;
 
     const start = new Date(startStr);
-    const fishTime = new Date(start.getTime() - 5 * 60 * 1000);
+    const { minutesBefore = 5 } = await chrome.storage.local.get('minutesBefore');
+    const fishTime = new Date(start.getTime() - minutesBefore * 60 * 1000);
     const alarmName = `${FISH_PREFIX}${event.id}`;
 
     if (fishTime > now && !existingNames.has(alarmName)) {
